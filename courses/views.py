@@ -177,8 +177,14 @@ def grade_student(request, reg_id):
 @login_required(login_url='login')
 @role_required('hod', 'admin')
 def manage_courses(request):
-    courses = Course.objects.all().select_related('lecturer').order_by('code')
-    return render(request, 'courses/manage_courses.html', {'courses': courses})
+    qs = Course.objects.all().select_related('lecturer').order_by('year_of_study', 'semester', 'code')
+    year = request.GET.get('year', '')
+    sem  = request.GET.get('sem', '')
+    if year.isdigit():
+        qs = qs.filter(year_of_study=int(year))
+    if sem in ('1', '2'):
+        qs = qs.filter(semester=sem)
+    return render(request, 'courses/manage_courses.html', {'courses': qs})
 
 
 @login_required(login_url='login')

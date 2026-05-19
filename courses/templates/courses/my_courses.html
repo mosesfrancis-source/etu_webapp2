@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h3 class="mb-0"><i class="bi bi-collection-fill me-2 text-success"></i>My Registered Courses</h3>
     <a href="{% url 'available_courses' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-circle me-1"></i>Browse Courses
@@ -9,7 +9,9 @@
 </div>
 
 {% if registrations %}
-<div class="table-responsive">
+
+{# Desktop table — hidden on small screens #}
+<div class="table-responsive d-none d-md-block">
     <table class="table table-hover align-middle bg-white shadow-sm rounded overflow-hidden">
         <thead class="table-dark">
             <tr>
@@ -54,6 +56,42 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+{# Mobile cards — shown only on small screens #}
+<div class="d-md-none">
+    {% for reg in registrations %}
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge bg-primary fs-6">{{ reg.course.code }}</span>
+                {% if reg.grade.letter_grade %}
+                    <span class="badge bg-success">{{ reg.grade.letter_grade }}</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ reg.course.name }}</h6>
+            <div class="small text-muted mb-2">
+                <span class="me-3"><i class="bi bi-award me-1 text-warning"></i>{{ reg.course.credits }} Credits</span>
+                <span><i class="bi bi-calendar2-week me-1 text-info"></i>Sem {{ reg.course.semester }}</span>
+            </div>
+            <div class="small text-muted mb-3">
+                <i class="bi bi-person-workspace me-1 text-success"></i>
+                {% if reg.course.lecturer %}{{ reg.course.lecturer.get_full_name }}{% else %}TBA{% endif %}
+            </div>
+            {% if not reg.grade.letter_grade %}
+            <form method="post" action="{% url 'drop_course' reg.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100"
+                    onclick="return confirm('Drop {{ reg.course.code }}?')">
+                    <i class="bi bi-x-circle me-1"></i>Drop Course
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
 </div>
 
 <p class="text-muted small mt-2">

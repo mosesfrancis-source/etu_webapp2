@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="mb-0">
+        <i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>
         Available Courses{% if year_of_study %} — Year {{ year_of_study }}{% endif %}
     </h3>
     <a href="{% url 'my_courses' %}" class="btn btn-outline-primary btn-sm">
@@ -10,17 +11,24 @@
     </a>
 </div>
 
-<!-- Semester filter -->
-<div class="mb-3">
-    <a href="?sem=" class="btn btn-sm {% if not active_sem %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">All Semesters</a>
-    <a href="?sem=1" class="btn btn-sm {% if active_sem == '1' %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">First Semester</a>
+{% if not year_of_study %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>Your student profile does not have a year of study set. Contact the admin or update your profile in <a href="{% url 'settings' %}" class="alert-link">Settings</a>.</span>
+</div>
+{% endif %}
+
+{# Semester filter #}
+<div class="mb-3 d-flex flex-wrap gap-2">
+    <a href="?sem=" class="btn btn-sm {% if not active_sem %}btn-primary{% else %}btn-outline-secondary{% endif %}">All Semesters</a>
+    <a href="?sem=1" class="btn btn-sm {% if active_sem == '1' %}btn-primary{% else %}btn-outline-secondary{% endif %}">First Semester</a>
     <a href="?sem=2" class="btn btn-sm {% if active_sem == '2' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Second Semester</a>
 </div>
 
 {% if courses %}
 <div class="row g-3">
     {% for course in courses %}
-    <div class="col-md-6 col-lg-4">
+    <div class="col-12 col-sm-6 col-lg-4">
         <div class="card h-100 shadow-sm border-0">
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -30,7 +38,9 @@
                     </span>
                 </div>
                 <h6 class="card-title mb-1">{{ course.name }}</h6>
-                <p class="card-text text-muted small flex-grow-1">{{ course.description|default:"No description provided."|truncatewords:18 }}</p>
+                <p class="card-text text-muted small flex-grow-1">
+                    {{ course.description|default:"No description provided."|truncatewords:18 }}
+                </p>
                 <ul class="list-unstyled small text-muted mb-3">
                     <li><i class="bi bi-award me-1 text-warning"></i>{{ course.credits }} Credit Hours</li>
                     <li><i class="bi bi-calendar2-week me-1 text-info"></i>{{ course.get_semester_display }}</li>
@@ -47,7 +57,7 @@
                     </button>
                 </form>
                 {% else %}
-                <button class="btn btn-secondary btn-sm w-100" disabled>Course Full</button>
+                <button type="button" class="btn btn-secondary btn-sm w-100" disabled>Course Full</button>
                 {% endif %}
             </div>
         </div>
@@ -57,8 +67,17 @@
 {% else %}
 <div class="text-center py-5 text-muted">
     <i class="bi bi-inbox display-4 d-block mb-3"></i>
-    <p class="lead">No courses available{% if active_sem == '1' %} for the First Semester{% elif active_sem == '2' %} for the Second Semester{% endif %}.</p>
-    <p class="small">Check back later or contact your department admin.</p>
+    <p class="lead">
+        No courses available{% if active_sem == '1' %} for the First Semester{% elif active_sem == '2' %} for the Second Semester{% endif %}{% if year_of_study %} for Year {{ year_of_study }}{% endif %}.
+    </p>
+    {% if year_of_study %}
+    <p class="small">Courses for Year {{ year_of_study }} have not been activated yet. Contact your department admin.</p>
+    {% else %}
+    <p class="small">Your year of study is not set. Please update your profile so the system can show you the right courses.</p>
+    {% endif %}
+    {% if active_sem %}
+    <a href="?sem=" class="btn btn-outline-secondary btn-sm me-2">Show All Semesters</a>
+    {% endif %}
 </div>
 {% endif %}
 

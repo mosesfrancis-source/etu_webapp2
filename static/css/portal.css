@@ -533,8 +533,56 @@ li.s-divider {
 .act-urgent { color: #fb923c !important; }
 .act-time  { font-size: .68rem; color: #94a3b8; white-space: nowrap; }
 
+/* ── Mobile hamburger icon ────────────────────────────────────── */
+.mob-menu-icon { font-size: 1.6rem; }
+
 /* ── Responsive ───────────────────────────────────────────────── */
-@media (max-width: 768px) {
-    .sidebar  { display: none; }
-    .d-info   { display: none !important; }
+@media (max-width: 991.98px) {
+    /* Sidebar becomes a fixed off-canvas drawer */
+    .sidebar {
+        position: fixed !important;
+        left: calc(-1 * var(--sidebar-w) - 20px);
+        top: 0;
+        height: 100vh !important;
+        z-index: 1050;
+        transition: left .28s cubic-bezier(.4,0,.2,1);
+        width: var(--sidebar-w);
+        overflow-y: auto;
+    }
+    .sidebar.mob-open { left: 0; }
+
+    /* Dark overlay behind open sidebar */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.52);
+        z-index: 1040;
+    }
+    .sidebar-overlay.mob-open { display: block; }
+
+    .d-info { display: none !important; }
+    .main-content { padding: 1rem .85rem; }
+
+    /* Shrink top bar on mobile */
+    .brand-title { font-size: 1.1rem; }
+    .brand-sub   { display: none; }
+    .brand-tag   { display: none; }
+    .brand-logo  { width: 46px; height: 46px; }
+
+    /* Tables scroll horizontally */
+    .table-responsive-mobile { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Course cards full width on mobile */
+    .course-card-mobile { display: block !important; }
+    .course-card-mobile .col-md-6,
+    .course-card-mobile .col-lg-4 { width: 100% !important; }
+
+    /* Stat cards stack */
+    .stat-card { padding: .8rem 1rem; }
+    .stat-val   { font-size: 1.4rem; }
+
+    /* Hero shrink */
+    .hero-title { font-size: 1.15rem; }
+    .page-hero  { padding: 1.2rem 1.1rem; }
 }
