@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="d-flex align-items-center gap-2 mb-3">
-    <a href="{% url 'inbox' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+    <a href="{% url back_url %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
     <h5 class="mb-0">{{ msg.subject }}</h5>
     <form method="post" action="{% url 'message_delete' msg.pk %}" class="ms-auto" onsubmit="return confirm('Delete this message?')">
         {% csrf_token %}

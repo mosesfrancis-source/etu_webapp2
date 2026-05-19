@@ -370,12 +370,18 @@ def message_compose(request):
     })
 
 
+def _inbox_url(user):
+    if user.role in ('lecturer', 'hod'):
+        return 'lecturer_messages'
+    return 'inbox'
+
+
 @login_required(login_url='login')
 def message_thread(request, pk):
     msg = get_object_or_404(Message, pk=pk)
     if msg.recipient != request.user and msg.sender != request.user:
         messages.error(request, 'Access denied.')
-        return redirect('inbox')
+        return redirect(_inbox_url(request.user))
     if msg.recipient == request.user:
         msg.mark_read()
     replies = msg.replies.select_related('sender', 'recipient').order_by('sent_at')
@@ -390,7 +396,8 @@ def message_thread(request, pk):
             )
             messages.success(request, 'Reply sent.')
             return redirect('message_thread', pk=pk)
-    return render(request, 'accounts/message_thread.html', {'msg': msg, 'replies': replies})
+    back_url = _inbox_url(request.user)
+    return render(request, 'accounts/message_thread.html', {'msg': msg, 'replies': replies, 'back_url': back_url})
 
 
 @login_required(login_url='login')
@@ -398,10 +405,10 @@ def message_delete(request, pk):
     msg = get_object_or_404(Message, pk=pk)
     if msg.sender != request.user and msg.recipient != request.user:
         messages.error(request, 'Access denied.')
-        return redirect('inbox')
+        return redirect(_inbox_url(request.user))
     msg.delete()
     messages.success(request, 'Message deleted.')
-    return redirect('inbox')
+    return redirect(_inbox_url(request.user))
 
 
 # ── Settings ──────────────────────────────────────────────────────────────────
