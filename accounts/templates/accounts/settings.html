@@ -41,13 +41,18 @@
                 class="form-control form-control-sm"
                 accept="image/*"
               />
-              <div class="form-text">JPG, PNG. Max 2MB. Preview updates instantly.</div>
+              <div class="form-text">JPG, PNG. Max 5MB. Preview updates instantly.</div>
             </div>
           </div>
           <script>
             document.getElementById('avatarInput').addEventListener('change', function() {
               var file = this.files[0];
               if (!file) return;
+              if (file.size > 5 * 1024 * 1024) {
+                alert('File is too large. Please choose an image under 5 MB.');
+                this.value = '';
+                return;
+              }
               var reader = new FileReader();
               reader.onload = function(e) {
                 var wrap = document.getElementById('avatarWrap');

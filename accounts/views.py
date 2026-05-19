@@ -334,7 +334,9 @@ def resource_delete(request, pk):
 
 @login_required(login_url='login')
 def inbox(request):
-    msgs = Message.objects.filter(recipient=request.user, parent__isnull=True).select_related('sender')
+    msgs = Message.objects.filter(
+        Q(recipient=request.user, parent__isnull=True) | Q(recipient=request.user, is_read=False)
+    ).select_related('sender').order_by('-sent_at').distinct()
     return render(request, 'accounts/inbox.html', {'msgs': msgs, 'tab': 'inbox'})
 
 
@@ -384,6 +386,9 @@ def message_thread(request, pk):
         return redirect(_inbox_url(request.user))
     if msg.recipient == request.user:
         msg.mark_read()
+        msg.replies.filter(recipient=request.user, is_read=False).update(
+            is_read=True, read_at=timezone.now()
+        )
     replies = msg.replies.select_related('sender', 'recipient').order_by('sent_at')
 
     if request.method == 'POST':
@@ -425,9 +430,16 @@ def settings_view(request):
             user.email      = request.POST.get('email', '').strip()
             user.phone      = request.POST.get('phone', '').strip()
             if 'profile_picture' in request.FILES:
+                pic = request.FILES['profile_picture']
+                if pic.size > 5 * 1024 * 1024:
+                    messages.error(request, 'Profile picture must be under 5 MB.')
+                    return redirect('settings')
                 if user.profile_picture:
-                    user.profile_picture.delete(save=False)
-                user.profile_picture = request.FILES['profile_picture']
+                    try:
+                        user.profile_picture.delete(save=False)
+                    except Exception:
+                        pass
+                user.profile_picture = pic
             user.save()
             messages.success(request, 'Profile updated.')
 

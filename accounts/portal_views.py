@@ -275,7 +275,9 @@ def lecturer_portal(request, section):
                     messages.success(request, f'Message sent to {len(recipients)} recipient(s).')
                     return redirect('lecturer_messages')
 
-        inbox = Message.objects.filter(recipient=user, parent__isnull=True).select_related('sender').order_by('-sent_at')
+        inbox = Message.objects.filter(
+            Q(recipient=user, parent__isnull=True) | Q(recipient=user, is_read=False)
+        ).select_related('sender').order_by('-sent_at').distinct()
         sent = Message.objects.filter(sender=user, parent__isnull=True).select_related('recipient').order_by('-sent_at')
         students = User.objects.filter(role='student').select_related('student_profile').order_by('first_name', 'last_name')
         return render(request, 'accounts/lecturer/section.html', {
@@ -549,7 +551,9 @@ def student_portal(request, section):
                 _create_notification(recipient, subject, body[:160], 'message')
                 messages.success(request, 'Message sent.')
                 return redirect('student_messages')
-        inbox = Message.objects.filter(recipient=user, parent__isnull=True).select_related('sender').order_by('-sent_at')
+        inbox = Message.objects.filter(
+            Q(recipient=user, parent__isnull=True) | Q(recipient=user, is_read=False)
+        ).select_related('sender').order_by('-sent_at').distinct()
         sent = Message.objects.filter(sender=user, parent__isnull=True).select_related('recipient').order_by('-sent_at')
         lecturers = User.objects.filter(role__in=LECTURER_ROLES).order_by('first_name', 'last_name')
         return render(request, 'accounts/student/section.html', {'section': section, 'inbox': inbox, 'sent': sent, 'lecturers': lecturers, 'registrations': courses})
