@@ -153,9 +153,16 @@ def lecturer_portal(request, section):
                 user.email = request.POST.get('email', '').strip()
                 user.phone = request.POST.get('phone', '').strip()
                 if request.FILES.get('profile_picture'):
+                    pic = request.FILES['profile_picture']
+                    if pic.size > 5 * 1024 * 1024:
+                        messages.error(request, 'Profile picture must be under 5 MB.')
+                        return redirect('lecturer_profile')
                     if user.profile_picture:
-                        user.profile_picture.delete(save=False)
-                    user.profile_picture = request.FILES['profile_picture']
+                        try:
+                            user.profile_picture.delete(save=False)
+                        except Exception:
+                            pass
+                    user.profile_picture = pic
                 lecturer_profile.department = request.POST.get('department', '').strip()
                 lecturer_profile.position = request.POST.get('position', '').strip()
                 lecturer_profile.office_number = request.POST.get('office_number', '').strip()
