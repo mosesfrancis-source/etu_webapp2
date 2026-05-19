@@ -483,7 +483,9 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="etu-card">
             <div class="etu-card-hdr"><span><i class="bi bi-lightning-fill me-2" style="color:#f59e0b;"></i>Quick Links</span></div>
             <div class="etu-card-body d-grid gap-2">
-                <a href="{% url 'manage_courses' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-gear me-1"></i>Manage Courses</a>
+                <a href="{% url 'admin_users' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-people-fill me-1"></i>Manage Users</a>
+                <a href="{% url 'admin_pins' %}" class="btn btn-outline-warning btn-sm"><i class="bi bi-key me-1"></i>PIN Management</a>
+                <a href="{% url 'manage_courses' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear me-1"></i>Manage Courses</a>
                 <a href="{% url 'add_course' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Add New Course</a>
                 <a href="/admin/" class="btn btn-outline-dark btn-sm"><i class="bi bi-shield-lock me-1"></i>Django Admin Panel</a>
             </div>

@@ -48,6 +48,9 @@ urlpatterns = [
     path('lecturer/analytics/', portal_views.lecturer_portal, {'section': 'analytics'}, name='lecturer_analytics'),
     path('portal/pins/', views.admin_pins, name='admin_pins'),
     path('portal/pins/generate/', views.admin_generate_pin, name='admin_generate_pin'),
+    path('portal/users/', views.admin_users, name='admin_users'),
+    path('portal/users/<int:pk>/edit/', views.admin_user_edit, name='admin_user_edit'),
+    path('portal/users/<int:pk>/delete/', views.admin_user_delete, name='admin_user_delete'),
 
     # Announcements
     path('announcements/', views.announcements, name='announcements'),

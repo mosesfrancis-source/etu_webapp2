@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Edit User — ETU Mathematics Portal{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+  <a href="{% url 'admin_users' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+  <h5 class="mb-0">Edit User — <span style="color:var(--navy);">{{ target.username }}</span></h5>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="etu-card">
+      <div class="etu-card-hdr"><span><i class="bi bi-person-gear me-2"></i>Account Details</span></div>
+      <div class="etu-card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">First Name</label>
+              <input type="text" name="first_name" value="{{ target.first_name }}" class="form-control">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              <input type="text" name="last_name" value="{{ target.last_name }}" class="form-control">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Email</label>
+              <input type="email" name="email" value="{{ target.email }}" class="form-control">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Phone</label>
+              <input type="text" name="phone" value="{{ target.phone }}" class="form-control" placeholder="Optional">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Role</label>
+              <select name="role" class="form-select">
+                {% for val, label in target.ROLE_CHOICES %}
+                  <option value="{{ val }}" {% if target.role == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6 d-flex align-items-end">
+              <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if target.is_active %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="is_active">Account Active</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <hr class="my-1">
+              <label class="form-label fw-semibold">New Password <span class="text-muted fw-normal">(leave blank to keep current)</span></label>
+              <input type="password" name="new_password" class="form-control" autocomplete="new-password" placeholder="Enter new password…">
+            </div>
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button type="submit" class="btn auth-submit"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
+              <a href="{% url 'admin_users' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="etu-card">
+      <div class="etu-card-hdr"><span><i class="bi bi-info-circle me-2"></i>Account Info</span></div>
+      <div class="etu-card-body">
+        <dl class="row mb-0" style="font-size:.85rem;">
+          <dt class="col-5 text-muted">Username</dt>
+          <dd class="col-7"><code>{{ target.username }}</code></dd>
+          <dt class="col-5 text-muted">User ID</dt>
+          <dd class="col-7">{{ target.pk }}</dd>
+          <dt class="col-5 text-muted">Joined</dt>
+          <dd class="col-7">{{ target.date_joined|date:"d M Y, H:i" }}</dd>
+          <dt class="col-5 text-muted">Last Login</dt>
+          <dd class="col-7">{{ target.last_login|date:"d M Y, H:i"|default:"Never" }}</dd>
+          {% if target.role == 'student' and target.student_profile %}
+          <dt class="col-5 text-muted">Student ID</dt>
+          <dd class="col-7">{{ target.student_profile.student_id }}</dd>
+          <dt class="col-5 text-muted">Year</dt>
+          <dd class="col-7">Year {{ target.student_profile.year_of_study }}</dd>
+          {% elif target.role in 'lecturer hod' and target.lecturer_profile %}
+          <dt class="col-5 text-muted">Staff ID</dt>
+          <dd class="col-7">{{ target.lecturer_profile.staff_id }}</dd>
+          <dt class="col-5 text-muted">Specialization</dt>
+          <dd class="col-7">{{ target.lecturer_profile.specialization|default:"—" }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+
+    {% if target != request.user %}
+    <div class="etu-card mt-3">
+      <div class="etu-card-hdr"><span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Danger Zone</span></div>
+      <div class="etu-card-body">
+        <p class="text-muted mb-2" style="font-size:.82rem;">Permanently delete this user and all associated data.</p>
+        <form method="post" action="{% url 'admin_user_delete' target.pk %}" onsubmit="return confirm('Permanently delete {{ target.username }}? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill me-1"></i>Delete User</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

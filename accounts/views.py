@@ -149,6 +149,68 @@ def admin_generate_pin(request):
     return redirect('admin_pins')
 
 
+def _admin_required(request):
+    return request.user.role == 'admin' or request.user.is_superuser
+
+
+@login_required(login_url='login')
+def admin_users(request):
+    if not _admin_required(request):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    qs = UserModel.objects.select_related('student_profile', 'lecturer_profile').order_by('role', 'last_name', 'first_name')
+    q = request.GET.get('q', '').strip()
+    role_filter = request.GET.get('role', '')
+    if q:
+        qs = qs.filter(Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(username__icontains=q) | Q(email__icontains=q))
+    if role_filter:
+        qs = qs.filter(role=role_filter)
+    return render(request, 'accounts/admin_users.html', {'users': qs, 'q': q, 'role_filter': role_filter})
+
+
+@login_required(login_url='login')
+def admin_user_edit(request, pk):
+    if not _admin_required(request):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    target = get_object_or_404(UserModel, pk=pk)
+    if request.method == 'POST':
+        target.first_name = request.POST.get('first_name', '').strip()
+        target.last_name = request.POST.get('last_name', '').strip()
+        target.email = request.POST.get('email', '').strip()
+        target.phone = request.POST.get('phone', '').strip()
+        new_role = request.POST.get('role', target.role)
+        if new_role in dict(UserModel.ROLE_CHOICES):
+            target.role = new_role
+        target.is_active = request.POST.get('is_active') == 'on'
+        new_pw = request.POST.get('new_password', '').strip()
+        if new_pw:
+            target.set_password(new_pw)
+        target.save()
+        messages.success(request, f'User {target.username} updated.')
+        return redirect('admin_users')
+    return render(request, 'accounts/admin_user_edit.html', {'target': target})
+
+
+@login_required(login_url='login')
+def admin_user_delete(request, pk):
+    if not _admin_required(request):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    target = get_object_or_404(UserModel, pk=pk)
+    if request.method == 'POST':
+        if target == request.user:
+            messages.error(request, 'You cannot delete your own account.')
+            return redirect('admin_users')
+        username = target.username
+        target.delete()
+        messages.success(request, f'User {username} deleted.')
+    return redirect('admin_users')
+
+
 @login_required(login_url='login')
 def dashboard(request):
     import json
