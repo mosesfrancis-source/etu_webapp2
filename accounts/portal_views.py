@@ -346,18 +346,21 @@ def lecturer_portal(request, section):
             if action == 'create':
                 course = get_object_or_404(Course, pk=request.POST.get('course_id'), lecturer=user)
                 due_date = _parse_dt(request.POST.get('due_date')) or timezone.now()
-                Assignment.objects.create(
-                    course=course,
-                    title=request.POST.get('title', '').strip(),
-                    description=request.POST.get('description', '').strip(),
-                    instructions=request.POST.get('instructions', '').strip(),
-                    due_date=due_date,
-                    attachment=request.FILES.get('attachment'),
-                    total_marks=request.POST.get('total_marks') or 100,
-                    allow_late_submission=bool(request.POST.get('allow_late_submission')),
-                    created_by=user,
-                )
-                messages.success(request, 'Assignment created.')
+                try:
+                    Assignment.objects.create(
+                        course=course,
+                        title=request.POST.get('title', '').strip(),
+                        description=request.POST.get('description', '').strip(),
+                        instructions=request.POST.get('instructions', '').strip(),
+                        due_date=due_date,
+                        attachment=request.FILES.get('attachment'),
+                        total_marks=request.POST.get('total_marks') or 100,
+                        allow_late_submission=bool(request.POST.get('allow_late_submission')),
+                        created_by=user,
+                    )
+                    messages.success(request, 'Assignment created.')
+                except Exception:
+                    messages.error(request, 'Assignment saved but file upload failed. Try again without the attachment or check storage settings.')
                 return redirect('lecturer_assignments')
 
         assignments = Assignment.objects.filter(course__lecturer=user).select_related('course').prefetch_related('submissions')
@@ -371,16 +374,19 @@ def lecturer_portal(request, section):
     if section == 'tutorials':
         if request.method == 'POST':
             course = get_object_or_404(Course, pk=request.POST.get('course_id'), lecturer=user)
-            Tutorial.objects.create(
-                course=course,
-                title=request.POST.get('title', '').strip(),
-                summary=request.POST.get('summary', '').strip(),
-                worked_examples=request.POST.get('worked_examples', '').strip(),
-                practice_exercises=request.POST.get('practice_exercises', '').strip(),
-                file=request.FILES.get('file'),
-                created_by=user,
-            )
-            messages.success(request, 'Tutorial posted.')
+            try:
+                Tutorial.objects.create(
+                    course=course,
+                    title=request.POST.get('title', '').strip(),
+                    summary=request.POST.get('summary', '').strip(),
+                    worked_examples=request.POST.get('worked_examples', '').strip(),
+                    practice_exercises=request.POST.get('practice_exercises', '').strip(),
+                    file=request.FILES.get('file'),
+                    created_by=user,
+                )
+                messages.success(request, 'Tutorial posted.')
+            except Exception:
+                messages.error(request, 'Tutorial saved but file upload failed. Please try again.')
             return redirect('lecturer_tutorials')
         tutorials = Tutorial.objects.filter(course__lecturer=user).select_related('course')
         return render(request, 'accounts/lecturer/section.html', {'section': section, 'courses': courses, 'tutorials': tutorials, 'lecturer_profile': lecturer_profile})
@@ -388,22 +394,25 @@ def lecturer_portal(request, section):
     if section == 'materials':
         if request.method == 'POST':
             course = get_object_or_404(Course, pk=request.POST.get('course_id'), lecturer=user)
-            CourseMaterial.objects.create(
-                course=course,
-                title=request.POST.get('title', '').strip(),
-                description=request.POST.get('description', '').strip(),
-                material_type=request.POST.get('material_type', 'notes'),
-                file=request.FILES.get('file'),
-                external_url=request.POST.get('external_url', '').strip(),
-                outline={
-                    'weekly_breakdown': _parse_csv_list(request.POST.get('weekly_breakdown', '')),
-                    'learning_objectives': _parse_csv_list(request.POST.get('learning_objectives', '')),
-                    'reading_list': _parse_csv_list(request.POST.get('reading_list', '')),
-                    'policies': request.POST.get('policies', '').strip(),
-                },
-                uploaded_by=user,
-            )
-            messages.success(request, 'Course material uploaded.')
+            try:
+                CourseMaterial.objects.create(
+                    course=course,
+                    title=request.POST.get('title', '').strip(),
+                    description=request.POST.get('description', '').strip(),
+                    material_type=request.POST.get('material_type', 'notes'),
+                    file=request.FILES.get('file'),
+                    external_url=request.POST.get('external_url', '').strip(),
+                    outline={
+                        'weekly_breakdown': _parse_csv_list(request.POST.get('weekly_breakdown', '')),
+                        'learning_objectives': _parse_csv_list(request.POST.get('learning_objectives', '')),
+                        'reading_list': _parse_csv_list(request.POST.get('reading_list', '')),
+                        'policies': request.POST.get('policies', '').strip(),
+                    },
+                    uploaded_by=user,
+                )
+                messages.success(request, 'Course material uploaded.')
+            except Exception:
+                messages.error(request, 'Material saved but file upload failed. Please try again.')
             return redirect('lecturer_materials')
         materials = CourseMaterial.objects.filter(course__lecturer=user).select_related('course')
         return render(request, 'accounts/lecturer/section.html', {'section': section, 'courses': courses, 'materials': materials, 'lecturer_profile': lecturer_profile})
@@ -444,18 +453,21 @@ def lecturer_portal(request, section):
     if section == 'exams':
         if request.method == 'POST':
             course = get_object_or_404(Course, pk=request.POST.get('course_id'), lecturer=user)
-            ExamSchedule.objects.create(
-                course=course,
-                lecturer=user,
-                exam_type=request.POST.get('exam_type', 'test'),
-                title=request.POST.get('title', '').strip(),
-                instructions=request.POST.get('instructions', '').strip(),
-                study_guide=request.FILES.get('study_guide'),
-                scheduled_for=_parse_dt(request.POST.get('scheduled_for')) or timezone.now(),
-                duration_minutes=request.POST.get('duration_minutes') or 120,
-                room=request.POST.get('room', '').strip(),
-            )
-            messages.success(request, 'Exam schedule saved.')
+            try:
+                ExamSchedule.objects.create(
+                    course=course,
+                    lecturer=user,
+                    exam_type=request.POST.get('exam_type', 'test'),
+                    title=request.POST.get('title', '').strip(),
+                    instructions=request.POST.get('instructions', '').strip(),
+                    study_guide=request.FILES.get('study_guide'),
+                    scheduled_for=_parse_dt(request.POST.get('scheduled_for')) or timezone.now(),
+                    duration_minutes=request.POST.get('duration_minutes') or 120,
+                    room=request.POST.get('room', '').strip(),
+                )
+                messages.success(request, 'Exam schedule saved.')
+            except Exception:
+                messages.error(request, 'Exam schedule saved but file upload failed. Please try again.')
             return redirect('lecturer_exams')
         exams = ExamSchedule.objects.filter(lecturer=user).select_related('course')
         return render(request, 'accounts/lecturer/section.html', {'section': section, 'exams': exams, 'courses': courses, 'lecturer_profile': lecturer_profile})
@@ -574,9 +586,12 @@ def student_portal(request, section):
             submission.text_submission = request.POST.get('text_submission', submission.text_submission)
             submission.resubmitted_at = timezone.now()
             submission.is_late = timezone.now() > assignment.due_date
-            submission.save()
-            _create_notification(assignment.created_by, f'Submission received: {assignment.title}', f'{user.get_full_name()} submitted an assignment.', 'assignment')
-            messages.success(request, 'Assignment submitted.')
+            try:
+                submission.save()
+                _create_notification(assignment.created_by, f'Submission received: {assignment.title}', f'{user.get_full_name()} submitted an assignment.', 'assignment')
+                messages.success(request, 'Assignment submitted.')
+            except Exception:
+                messages.error(request, 'Submission saved but file upload failed. Please try again.')
             return redirect('student_assignments')
         submissions = AssignmentSubmission.objects.filter(student=user).select_related('assignment', 'assignment__course')
         return render(request, 'accounts/student/section.html', {'section': section, 'assignments': assignments, 'submissions': submissions, 'registrations': courses})
