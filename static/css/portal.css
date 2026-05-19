@@ -368,6 +368,12 @@ li.s-divider {
 .news-date        { font-size: .68rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; }
 .news-title       { font-size: .9rem; font-weight: 700; color: var(--navy); margin: .2rem 0; }
 .news-body        { font-size: .8rem; color: #4b5563; line-height: 1.55; }
+/* ── News page butter-yellow gradient ───────────────────── */
+.news-page        { background: linear-gradient(160deg, #fffef7 0%, #fef9e7 50%, #fef3c7 100%); min-height: 60vh; }
+.news-page .etu-card { background: linear-gradient(155deg, #fffef7 0%, #fffbeb 50%, #fef3c7 100%); border: 1px solid rgba(253,230,138,.35); }
+.news-page .etu-card-hdr { background: linear-gradient(135deg, rgba(255,251,235,.95) 0%, rgba(253,230,138,.35) 100%); border-bottom: 1px solid rgba(253,211,77,.25); }
+.news-page .prog-badge   { background: rgba(254,249,231,.8); border-color: rgba(253,211,77,.4); color: var(--navy); }
+.news-page .prog-badge:hover { background: rgba(253,230,138,.5); }
 .contact-box      { background: var(--navy); color: #fff; border-radius: 12px; padding: 1.4rem; height: 100%; }
 .contact-box a    { color: var(--teal); }
 .contact-row      { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: 1rem; }
