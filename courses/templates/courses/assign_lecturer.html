@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Assign Lecturer — {{ course.code }}{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'manage_courses' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+    <h4 class="mb-0"><i class="bi bi-person-workspace me-2 text-primary"></i>Assign Lecturer</h4>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+
+        <!-- Course info card -->
+        <div class="etu-card mb-4">
+            <div class="etu-card-hdr">
+                <span><i class="bi bi-book me-2"></i>Course Details</span>
+            </div>
+            <div class="etu-card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">Code</div>
+                        <div class="fw-bold fs-5"><span class="badge bg-primary">{{ course.code }}</span></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">Credits</div>
+                        <div class="fw-bold fs-5">{{ course.credits }} Cr.Hrs</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">Course Name</div>
+                        <div class="fw-semibold fs-6">{{ course.name }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">Year / Semester</div>
+                        <div>Year {{ course.year_of_study }} &middot; Semester {{ course.semester }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">Current Lecturer</div>
+                        <div>
+                            {% if course.lecturer %}
+                            <span class="badge bg-success">{{ course.lecturer.get_full_name }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Unassigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign form -->
+        <div class="etu-card">
+            <div class="etu-card-hdr">
+                <span><i class="bi bi-person-check me-2"></i>Select Lecturer</span>
+            </div>
+            <div class="etu-card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Assign to Lecturer</label>
+                        {{ form.lecturer }}
+                        <div class="form-text">Select a lecturer from the list, or choose "— Unassign —" to remove the current assignment.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Save Assignment
+                        </button>
+                        <a href="{% url 'manage_courses' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
