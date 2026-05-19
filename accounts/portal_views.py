@@ -411,8 +411,8 @@ def lecturer_portal(request, section):
                     uploaded_by=user,
                 )
                 messages.success(request, 'Course material uploaded.')
-            except Exception:
-                messages.error(request, 'Material saved but file upload failed. Please try again.')
+            except Exception as e:
+                messages.error(request, f'Upload error: {type(e).__name__}: {e}')
             return redirect('lecturer_materials')
         materials = CourseMaterial.objects.filter(course__lecturer=user).select_related('course')
         return render(request, 'accounts/lecturer/section.html', {'section': section, 'courses': courses, 'materials': materials, 'lecturer_profile': lecturer_profile})
