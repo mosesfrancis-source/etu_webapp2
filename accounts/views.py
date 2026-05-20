@@ -13,6 +13,7 @@ from .models import RegistrationPIN, Announcement, Resource, Message, FeePayment
 def about(request):
     return render(request, 'about.html')
 
+@login_required(login_url='login')
 def programs(request):
     from courses.models import Course
     qs = Course.objects.filter(is_active=True).order_by('code')
@@ -27,11 +28,13 @@ def programs(request):
     }
     return render(request, 'programs.html', context)
 
+@login_required(login_url='login')
 def faculty_page(request):
     from accounts.models import User as UserModel
     staff = UserModel.objects.filter(role__in=['lecturer', 'hod']).select_related('lecturer_profile')
     return render(request, 'faculty.html', {'staff': staff})
 
+@login_required(login_url='login')
 def students_page(request):
     return render(request, 'students.html')
 
